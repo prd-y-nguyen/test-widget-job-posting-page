@@ -26,14 +26,29 @@
     .other-jobs { max-width: 960px; margin: 0 auto 40px; padding: 0 24px; }
     .other-jobs .job-title { font-weight: 600; }
   </style>
+  <script>
+    // Same `$x` polyfill RSL LifeCare ships in their Olivia embed snippet
+    if (typeof window.$x !== 'function') {
+      window.$x = function (xpath, context) {
+        var root = context || document
+        var doc = root.ownerDocument || document
+        var result = doc.evaluate(xpath, root, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null)
+        var nodes = []
+        for (var i = 0; i < result.snapshotLength; i++) {
+          nodes.push(result.snapshotItem(i))
+        }
+        return nodes
+      }
+    }
+  </script>
 </head>
 <body>
   <div class="test-banner">
     <strong>Widget test page: mirrors https://rsllifecare.org.au/jobs/senior-ai-developer-45117/ (OL-380776). Use these scripts for the widget label rules (type: Custom):</strong>
-    Job Req ID via hero meta (expects <input class="test-input" data-target="hero-req-id" placeholder="add job req id here" value="JR113342">):
-    <code>document.querySelector('.hero-content .job-meta li:nth-of-type(2)')?.lastChild.textContent.trim();</code>
+    Job Req ID (expects <input class="test-input" data-target="req-id" placeholder="add job req id here" value="JR113342">):
+    <code>document.getElementById('job-req-id').value</code>
     Job Title (expects <input class="test-input" data-target="title" placeholder="add job title here" value="Senior AI Developer">):
-    <code>document.querySelector("div:has(&gt; input.job-req-id) span.job-title").textContent.trim()</code>
+    <code>$x("//div[input[@class='job-req-id']]//span[@class='job-title']")[0].textContent.trim()</code>
   </div>
 
   <header>RSL LifeCare</header>
@@ -89,7 +104,10 @@
         document.querySelector('.hero-content h1').textContent = v
         document.title = `${v} - RSL LifeCare`
       },
-      'hero-req-id': (v) => {
+      'req-id': (v) => {
+        const input = document.getElementById('job-req-id')
+        input.value = v
+        input.setAttribute('value', v)
         document.querySelector('.hero-content .job-meta li:nth-of-type(2)').lastChild.textContent = v
       },
     }
